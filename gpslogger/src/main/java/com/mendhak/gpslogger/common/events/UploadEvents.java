@@ -80,32 +80,8 @@ public class UploadEvents {
         }
     }
 
-    public static class AutoEmail extends BaseUploadEvent  {
-        public ArrayList<String> smtpMessages;
-
-    }
-
-
     public static class CustomUrl extends BaseUploadEvent {}
     public static class Dawarich extends BaseUploadEvent {}
-
-    public static class Dropbox extends BaseUploadEvent {}
-    public static class GoogleDrive extends BaseUploadEvent {}
-
-    public static class Ftp extends BaseUploadEvent {
-        public ArrayList<String> ftpMessages;
-    }
-
-    public static class OpenGTS extends BaseUploadEvent {}
-
-    public static class OpenStreetMap extends BaseUploadEvent {}
-
     public static class OwnCloud extends BaseUploadEvent {}
-
-    public static class SFTP extends BaseUploadEvent {
-        public String fingerprint;
-        public String hostKey;
-    }
-
     public static class HttpFileUpload extends BaseUploadEvent {}
 }

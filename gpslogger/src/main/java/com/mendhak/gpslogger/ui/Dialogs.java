@@ -203,20 +203,4 @@ public class Dialogs {
                 .title(title)
                 .show(activity, cacheKey);
     }
-
-    public static ArrayList<FormElement> getOpenStreetMapFormElementsForDialog(PreferenceHelper preferenceHelper){
-        ArrayList<FormElement> formElements = new ArrayList<>();
-        formElements.add(Input.plain(PreferenceNames.OPENSTREETMAP_DESCRIPTION)
-                .hint(R.string.osm_description)
-                .text(preferenceHelper.getOSMDescription()));
-        formElements.add(Input.plain(PreferenceNames.OPENSTREETMAP_TAGS)
-                .hint(R.string.osm_tags)
-                .text(preferenceHelper.getOSMTags()));
-        formElements.add(Input.spinner(PreferenceNames.OPENSTREETMAP_VISIBILITY)
-                .suggest(R.array.osm_visibility_choices)
-                .text(preferenceHelper.getOSMVisibility())
-                .hint(R.string.osm_visibility));
-        return formElements;
-    }
-
 }

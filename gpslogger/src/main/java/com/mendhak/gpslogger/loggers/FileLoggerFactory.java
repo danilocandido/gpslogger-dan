@@ -31,7 +31,6 @@ import com.mendhak.gpslogger.loggers.geojson.GeoJSONLogger;
 import com.mendhak.gpslogger.loggers.gpx.Gpx10FileLogger;
 import com.mendhak.gpslogger.loggers.gpx.Gpx11FileLogger;
 import com.mendhak.gpslogger.loggers.kml.Kml22FileLogger;
-import com.mendhak.gpslogger.loggers.opengts.OpenGTSLogger;
 
 
 import java.io.File;
@@ -74,10 +73,6 @@ public class FileLoggerFactory {
         if (preferenceHelper.shouldLogToCSV()) {
             File file = new File(gpxFolder.getPath(), Strings.getFormattedFileName() + ".csv");
             loggers.add(new CSVFileLogger(file, context));
-        }
-
-        if (preferenceHelper.shouldLogToOpenGTS()) {
-            loggers.add(new OpenGTSLogger(context));
         }
 
         if (preferenceHelper.shouldLogToDawarich()) {

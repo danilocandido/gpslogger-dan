@@ -57,7 +57,7 @@ public class OwnCloudManager extends FileSender
             Systems.startWorkManagerRequest(OwnCloudWorker.class, dataMap, tag);
 
         } catch (Exception ex) {
-            EventBus.getDefault().post(new UploadEvents.Ftp().failed());
+            EventBus.getDefault().post(new UploadEvents.OwnCloud().failed());
             LOG.error("Error while testing ownCloud upload: " + ex.getMessage());
         }
 

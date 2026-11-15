@@ -192,15 +192,6 @@ public class GpsMainActivity extends AppCompatActivity
     private void handleVersionChanges() {
         int currentVersion = BuildConfig.VERSION_CODE;
         if (preferenceHelper.getLastVersionSeen() < currentVersion) {
-            String visibility = preferenceHelper.getSharedPreferences().getString(PreferenceNames.OPENSTREETMAP_VISIBILITY, null);
-            if (visibility != null && ("public".equals(visibility) || "private".equals(visibility))) {
-                preferenceHelper.setOSMVisibility("trackable");
-                SimpleDialog.build()
-                        .msg(R.string.osm_visibility_migration_message)
-                        .pos(R.string.ok)
-                        .cancelable(false)
-                        .show(this);
-            }
             preferenceHelper.setLastVersionSeen(currentVersion);
         }
     }
@@ -336,29 +327,9 @@ public class GpsMainActivity extends AppCompatActivity
             return true;
         }
 
-        if(dialogTag.equalsIgnoreCase("OSM_FILE_UPLOAD_DIALOG") && which == BUTTON_POSITIVE){
-            //As a special case.  For OSM, let user set the description, tags, before passing details along to the actual upload step.
-
-            Bundle extra = new Bundle();
-            //Pass along the sender name and list of files, from the previous dialog.
-            extra.putString("SENDER_NAME", extras.getString("SENDER_NAME"));
-            extra.putStringArrayList(SimpleListDialog.SELECTED_LABELS, extras.getStringArrayList(SimpleListDialog.SELECTED_LABELS));
-
-            SimpleFormDialog.build()
-                    .title(R.string.osm_setup_title)
-                    .extra(extra)
-                    .fields(Dialogs.getOpenStreetMapFormElementsForDialog(preferenceHelper).toArray(new FormElement[0]))
-                    .pos(R.string.ok)
-                    .show(this, "FILE_UPLOAD_DIALOG");
-            return true;
-        }
-
         if(dialogTag.equalsIgnoreCase("FILE_UPLOAD_DIALOG") && which == BUTTON_POSITIVE){
 
             String senderName = extras.getString("SENDER_NAME");
-
-            //As a special case, if it's an OpenStreetMap upload, save the preferences before uploading
-            setOpenStreetMapPreferencesFromDialogPrompt(extras);
 
             final File gpxFolder = new File(preferenceHelper.getGpsLoggerFolder());
             List<File> chosenFiles = new ArrayList<>();
@@ -431,9 +402,6 @@ public class GpsMainActivity extends AppCompatActivity
                 }
             }
 
-
-            setOpenStreetMapPreferencesFromDialogPrompt(extras);
-
             getCurrentFragment().toggleLogging();
             return true;
         }
@@ -448,30 +416,6 @@ public class GpsMainActivity extends AppCompatActivity
 
         return false;
     }
-
-    private void setOpenStreetMapPreferencesFromDialogPrompt(Bundle extras) {
-        if(extras.containsKey(PreferenceNames.OPENSTREETMAP_TAGS)){
-            String chosenOsmTags = extras.getString(PreferenceNames.OPENSTREETMAP_TAGS);
-            if(!preferenceHelper.getOSMTags().equalsIgnoreCase(chosenOsmTags)){
-                preferenceHelper.setOSMTags(chosenOsmTags);
-            }
-        }
-
-        if(extras.containsKey(PreferenceNames.OPENSTREETMAP_DESCRIPTION)){
-            String chosenOsmDescription = extras.getString(PreferenceNames.OPENSTREETMAP_DESCRIPTION);
-            if(!preferenceHelper.getOSMDescription().equalsIgnoreCase(chosenOsmDescription)){
-                preferenceHelper.setOSMDescription(chosenOsmDescription);
-            }
-        }
-
-        if(extras.containsKey(PreferenceNames.OPENSTREETMAP_VISIBILITY)){
-            String chosenOsmVisibility = extras.getString(PreferenceNames.OPENSTREETMAP_VISIBILITY);
-            if(!preferenceHelper.getOSMVisibility().equalsIgnoreCase(chosenOsmVisibility)){
-                preferenceHelper.setOSMVisibility(chosenOsmVisibility);
-            }
-        }
-    }
-
 
     public void askUserForBackgroundPermissions() {
 
@@ -862,14 +806,7 @@ public class GpsMainActivity extends AppCompatActivity
         materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.log_customurl_setup_title, null, R.drawable.customurlsender, 1020));
         materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.http_file_upload_setup_title, null, R.drawable.customurlsender, 1021));
         materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.log_dawarich_setup_title, null, R.drawable.dawarichsender, 1022));
-        materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.dropbox_setup_title, null, R.drawable.dropbox, 1005));
-        materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.google_drive_setup_title, null, R.drawable.googledrive, 1011));
-        materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.sftp_setup_title, null, R.drawable.sftp, 1015));
-        materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.opengts_setup_title, null, R.drawable.opengts, 1008));
-        materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.osm_setup_title, null, R.drawable.openstreetmap, 1009));
-        materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.autoemail_title, null, R.drawable.email, 1006));
         materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.owncloud_setup_title, null, R.drawable.owncloud, 1010));
-        materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.autoftp_setup_title, null, R.drawable.ftp, 1007));
 
         materialDrawer.addItem(new DividerDrawerItem());
 
@@ -899,29 +836,8 @@ public class GpsMainActivity extends AppCompatActivity
                     case 1003:
                         launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.UPLOAD);
                         break;
-                    case 1005:
-                        launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.DROPBOX);
-                        break;
-                    case 1006:
-                        launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.EMAIL);
-                        break;
-                    case 1007:
-                        launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.FTP);
-                        break;
-                    case 1008:
-                        launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.OPENGTS);
-                        break;
-                    case 1009:
-                        launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.OSM);
-                        break;
                     case 1010:
                         launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.OWNCLOUD);
-                        break;
-                    case 1011:
-                        launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.GOOGLEDRIVE);
-                        break;
-                    case 1015:
-                        launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.SFTP);
                         break;
                     case 1020:
                         launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.CUSTOMURL);
@@ -1223,32 +1139,11 @@ public class GpsMainActivity extends AppCompatActivity
             case R.id.mnuShare:
                 share();
                 return true;
-            case R.id.mnuOSM:
-                uploadToOpenStreetMap();
-                return true;
-            case R.id.mnuDropBox:
-                uploadToDropBox();
-                return true;
-            case R.id.mnuGoogleDrive:
-                uploadToGoogleDrive();
-                return true;
-            case R.id.mnuOpenGTS:
-                sendToOpenGTS();
-                return true;
-            case R.id.mnuFtp:
-                sendToFtp();
-                return true;
-            case R.id.mnuEmail:
-                selectAndEmailFile();
-                return true;
             case R.id.mnuAutoSendNow:
                 forceAutoSendNow();
                 return true;
             case R.id.mnuOwnCloud:
                 uploadToOwnCloud();
-                return true;
-            case R.id.mnuSFTP:
-                uploadToSFTP();
                 return true;
             case R.id.mnuCustomUrl:
                 uploadToCustomURL();
@@ -1303,35 +1198,6 @@ public class GpsMainActivity extends AppCompatActivity
     }
 
 
-    private void uploadToOpenStreetMap() {
-        if (!FileSenderFactory.getOsmSender().isAvailable()) {
-            launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.OSM);
-            return;
-        }
-
-        showFileListDialog(FileSenderFactory.getOsmSender());
-    }
-
-    private void uploadToGoogleDrive() {
-        if(!FileSenderFactory.getGoogleDriveSender().isAvailable()){
-            launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.GOOGLEDRIVE);
-            return;
-        }
-
-        showFileListDialog(FileSenderFactory.getGoogleDriveSender());
-    }
-
-    private void uploadToDropBox() {
-
-        if (!FileSenderFactory.getDropBoxSender().isAvailable()) {
-            launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.DROPBOX);
-            return;
-        }
-
-        showFileListDialog(FileSenderFactory.getDropBoxSender());
-    }
-
-
     private void uploadToCustomURL(){
         if(!FileSenderFactory.getCustomUrlSender().isAvailable()){
             launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.CUSTOMURL);
@@ -1350,15 +1216,6 @@ public class GpsMainActivity extends AppCompatActivity
         showFileListDialog(FileSenderFactory.getHttpFileUploadSender());
     }
 
-    private void uploadToSFTP(){
-        if(!FileSenderFactory.getSFTPSender().isAvailable()){
-            launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.SFTP);
-            return;
-        }
-
-        showFileListDialog(FileSenderFactory.getSFTPSender());
-    }
-
     private void uploadToOwnCloud() {
 
         if (!FileSenderFactory.getOwnCloudSender().isAvailable()) {
@@ -1367,32 +1224,6 @@ public class GpsMainActivity extends AppCompatActivity
         }
 
         showFileListDialog(FileSenderFactory.getOwnCloudSender());
-    }
-
-    private void sendToOpenGTS() {
-        if (!FileSenderFactory.getOpenGTSSender().isAvailable()) {
-            launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.OPENGTS);
-        } else {
-            showFileListDialog(FileSenderFactory.getOpenGTSSender());
-        }
-    }
-
-
-
-    private void sendToFtp() {
-        if (!FileSenderFactory.getFtpSender().isAvailable()) {
-            launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.FTP);
-        } else {
-            showFileListDialog(FileSenderFactory.getFtpSender());
-        }
-    }
-
-    private void selectAndEmailFile() {
-        if (!FileSenderFactory.getEmailSender().isAvailable()) {
-            launchPreferenceScreen(MainPreferenceActivity.PREFERENCE_FRAGMENTS.EMAIL);
-        } else {
-            showFileListDialog(FileSenderFactory.getEmailSender());
-        }
     }
 
     private void showFileListDialog(final FileSender sender) {
@@ -1428,11 +1259,6 @@ public class GpsMainActivity extends AppCompatActivity
             Bundle extra = new Bundle();
             extra.putString("SENDER_NAME", sender.getName());
             String dialogTag = "FILE_UPLOAD_DIALOG";
-
-            //As a special case.  If it's an OpenStreetMap upload, let user set description, tags before upload.
-            if(sender.getName().equalsIgnoreCase(FileSender.SenderNames.OPENSTREETMAP)){
-                dialogTag = "OSM_FILE_UPLOAD_DIALOG";
-            }
 
             SimpleListDialog.build()
                     .title(R.string.osm_pick_file)
@@ -1606,23 +1432,6 @@ public class GpsMainActivity extends AppCompatActivity
 
 
     @EventBusHook
-    public void onEventMainThread(UploadEvents.OpenGTS upload){
-        LOG.debug("Open GTS Event completed, success: " + upload.success);
-        Dialogs.hideProgress();
-
-        if(!upload.success){
-            LOG.error(getString(R.string.opengts_setup_title)
-                    + "-"
-                    + getString(R.string.upload_failure));
-
-            if(userInvokedUpload){
-                Dialogs.showError(getString(R.string.sorry), getString(R.string.upload_failure), upload.message, upload.throwable, this);
-                userInvokedUpload = false;
-            }
-        }
-    }
-
-    @EventBusHook
     public void onEventMainThread(UploadEvents.CustomUrl upload){
         LOG.debug("Custom URL Event completed, success: " + upload.success);
         Dialogs.hideProgress();
@@ -1666,101 +1475,6 @@ public class GpsMainActivity extends AppCompatActivity
                     + "-"
                     + getString(R.string.upload_failure));
 
-            if(userInvokedUpload){
-                Dialogs.showError(getString(R.string.sorry), getString(R.string.upload_failure), upload.message, upload.throwable, this);
-                userInvokedUpload = false;
-            }
-        }
-    }
-
-    @EventBusHook
-    public void onEventMainThread(UploadEvents.AutoEmail upload){
-        LOG.debug("Auto Email Event completed, success: " + upload.success);
-        Dialogs.hideProgress();
-
-        if(!upload.success){
-            LOG.error(getString(R.string.autoemail_title)
-                    + "-"
-                    + getString(R.string.upload_failure));
-            if(userInvokedUpload){
-                Dialogs.showError(getString(R.string.sorry), getString(R.string.upload_failure), upload.message, upload.throwable, this);
-                userInvokedUpload = false;
-            }
-        }
-    }
-
-    @EventBusHook
-    public void onEventMainThread(UploadEvents.OpenStreetMap upload){
-        LOG.debug("OSM Event completed, success: " + upload.success);
-        Dialogs.hideProgress();
-
-        if(!upload.success){
-            LOG.error(getString(R.string.osm_setup_title)
-                    + "-"
-                    + getString(R.string.upload_failure));
-            if(userInvokedUpload){
-                Dialogs.showError(getString(R.string.sorry), getString(R.string.upload_failure), upload.message, upload.throwable, this);
-                userInvokedUpload = false;
-            }
-        }
-    }
-
-    @EventBusHook
-    public void onEventMainThread(UploadEvents.Dropbox upload){
-        LOG.debug("Dropbox Event completed, success: " + upload.success);
-        Dialogs.hideProgress();
-
-        if(!upload.success){
-            LOG.error(getString(R.string.dropbox_setup_title)
-                    + "-"
-                    + getString(R.string.upload_failure));
-            if(userInvokedUpload){
-                Dialogs.showError(getString(R.string.sorry), getString(R.string.upload_failure), upload.message, upload.throwable, this);
-                userInvokedUpload = false;
-            }
-        }
-    }
-
-    @EventBusHook
-    public void onEventMainThread(UploadEvents.GoogleDrive upload){
-        LOG.debug("Google Drive Event completed, success: " + upload.success);
-        Dialogs.hideProgress();
-
-        if(!upload.success){
-            LOG.error(getString(R.string.google_drive_setup_title)
-                    + "-"
-                    + getString(R.string.upload_failure));
-            if(userInvokedUpload){
-                Dialogs.showError(getString(R.string.sorry), getString(R.string.upload_failure), upload.message, upload.throwable, this);
-                userInvokedUpload = false;
-            }
-        }
-    }
-
-    @EventBusHook
-    public void onEventMainThread(UploadEvents.Ftp upload){
-        LOG.debug("FTP Event completed, success: " + upload.success);
-        Dialogs.hideProgress();
-
-        if(!upload.success){
-            LOG.error(getString(R.string.autoftp_setup_title)
-                    + "-"
-                    + getString(R.string.upload_failure));
-            if(userInvokedUpload){
-                Dialogs.showError(getString(R.string.sorry), getString(R.string.upload_failure), upload.message, upload.throwable, this);
-                userInvokedUpload = false;
-            }
-        }
-    }
-
-    @EventBusHook
-    public void onEventMainThread(UploadEvents.SFTP upload){
-
-        LOG.debug("SFTP Event completed, success: " + upload.success);
-        Dialogs.hideProgress();
-
-        if(!upload.success){
-            LOG.error(getString(R.string.sftp_setup_title) + "- " + getString(R.string.upload_failure));
             if(userInvokedUpload){
                 Dialogs.showError(getString(R.string.sorry), getString(R.string.upload_failure), upload.message, upload.throwable, this);
                 userInvokedUpload = false;

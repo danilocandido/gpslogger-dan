@@ -31,12 +31,6 @@
         app:iconSpaceReserved="false" />
 
     <SwitchPreferenceCompat
-        android:key="log_opengts"
-        android:summary="@string/log_opengts_summary"
-        android:title="@string/log_opengts_title"
-        app:iconSpaceReserved="false" />
-
-    <SwitchPreferenceCompat
         android:key="log_plain_text"
         android:summary="@string/log_plain_text_summary"
         android:title="@string/log_plain_text_title"
