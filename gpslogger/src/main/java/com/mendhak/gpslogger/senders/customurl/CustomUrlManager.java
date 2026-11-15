@@ -8,7 +8,9 @@ import com.mendhak.gpslogger.common.PreferenceHelper;
 import com.mendhak.gpslogger.common.SerializableLocation;
 import com.mendhak.gpslogger.common.Strings;
 import com.mendhak.gpslogger.common.Systems;
+import com.mendhak.gpslogger.common.events.UploadEvents;
 import com.mendhak.gpslogger.common.slf4j.Logs;
+import de.greenrobot.event.EventBus;
 import com.mendhak.gpslogger.loggers.csv.CSVFileLogger;
 import com.mendhak.gpslogger.loggers.customurl.CustomUrlRequest;
 import com.mendhak.gpslogger.loggers.customurl.CustomUrlWorker;
@@ -57,6 +59,44 @@ public class CustomUrlManager extends FileSender {
 
         if(!foundFileToSend){
             LOG.warn("Custom URL auto sender requires a CSV file to be present.");
+            EventBus.getDefault().post(new UploadEvents.CustomUrl().failed("Custom URL requires a CSV file to be present."));
+        }
+    }
+
+    public void testCustomUrlConnection() {
+        try {
+            Location testLoc = new Location("gps");
+            testLoc.setLatitude(0.0);
+            testLoc.setLongitude(0.0);
+            testLoc.setAltitude(0.0);
+            testLoc.setAccuracy(5.0f);
+            testLoc.setSpeed(0.0f);
+            testLoc.setBearing(0.0f);
+            testLoc.setTime(System.currentTimeMillis());
+
+            Bundle b = new Bundle();
+            b.putInt(BundleConstants.BATTERY_LEVEL, 100);
+            b.putBoolean(BundleConstants.BATTERY_CHARGING, false);
+            b.putString(BundleConstants.ANNOTATION, "Test connection");
+            b.putString(BundleConstants.TIME_WITH_OFFSET, Strings.getIsoDateTimeWithOffset(new Date(testLoc.getTime())));
+            b.putDouble(BundleConstants.DISTANCE, 0.0);
+            b.putLong(BundleConstants.STARTTIMESTAMP, System.currentTimeMillis());
+            b.putString(BundleConstants.PROFILE_NAME, "Test");
+            b.putString(BundleConstants.FILE_NAME, "test_connection");
+            testLoc.setExtras(b);
+
+            SerializableLocation sLoc = new SerializableLocation(testLoc);
+            String url = getFormattedTextblock(preferenceHelper.getCustomLoggingUrl(), sLoc);
+            String body = Strings.isNullOrEmpty(preferenceHelper.getCustomLoggingHTTPBody()) ? "" : getFormattedTextblock(preferenceHelper.getCustomLoggingHTTPBody(), sLoc);
+            String headers = Strings.isNullOrEmpty(preferenceHelper.getCustomLoggingHTTPHeaders()) ? "" : getFormattedTextblock(preferenceHelper.getCustomLoggingHTTPHeaders(), sLoc);
+            String method = preferenceHelper.getCustomLoggingHTTPMethod();
+            String username = preferenceHelper.getCustomLoggingBasicAuthUsername();
+            String password = preferenceHelper.getCustomLoggingBasicAuthPasswordForService();
+
+            sendByHttp(url, method, body, headers, username, password);
+        } catch (Exception ex) {
+            LOG.error("Error while testing Custom URL connection: " + ex.getMessage(), ex);
+            EventBus.getDefault().post(new UploadEvents.CustomUrl().failed(ex.getMessage(), ex));
         }
     }
 

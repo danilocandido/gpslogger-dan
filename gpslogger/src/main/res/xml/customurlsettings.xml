@@ -78,4 +78,10 @@
         android:title="@string/customurl_autosend_sleep"
         app:iconSpaceReserved="false" />
 
+    <Preference
+        android:key="custom_url_test"
+        android:title="@string/customurl_test_title"
+        android:summary="@string/customurl_test_summary"
+        app:iconSpaceReserved="false" />
+
 </PreferenceScreen>

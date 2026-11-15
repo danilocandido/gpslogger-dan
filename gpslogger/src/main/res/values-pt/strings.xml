@@ -399,4 +399,9 @@ Nomes de ficheiro muito dinâmicos
 
 
 
+    <string name="customurl_test_title">Testar conexão</string>
+    <string name="customurl_test_summary">Enviar um ponto de teste com as configurações atuais</string>
+    <string name="customurl_testing">Testando conexão com a URL personalizada</string>
+    <string name="customurl_test_success">Teste de conexão com a URL personalizada concluído com sucesso!</string>
+    <string name="customurl_test_failed">Falha no teste de conexão com a URL personalizada</string>
 </resources>

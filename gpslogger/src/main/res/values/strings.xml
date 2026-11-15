@@ -551,4 +551,9 @@
     <string name="dawarich_baseUrl_not_set_msg">Please set the Dawarich base-URL and try again</string>
     <string name="dawarich_apiKey_not_set_title">API-key not set</string>
     <string name="dawarich_apiKey_not_set_msg">Please set the Dawarich API-key and try again</string>
+    <string name="customurl_test_title">Test connection</string>
+    <string name="customurl_test_summary">Send a test location point using current settings</string>
+    <string name="customurl_testing">Testing Custom URL connection</string>
+    <string name="customurl_test_success">Custom URL connection test succeeded!</string>
+    <string name="customurl_test_failed">Custom URL connection test failed</string>
 </resources>

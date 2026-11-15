@@ -25,18 +25,23 @@ import android.text.InputType;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.mendhak.gpslogger.R;
+import com.mendhak.gpslogger.common.EventBusHook;
 import com.mendhak.gpslogger.common.PreferenceHelper;
 import com.mendhak.gpslogger.common.PreferenceNames;
 import com.mendhak.gpslogger.common.Strings;
+import com.mendhak.gpslogger.common.events.UploadEvents;
 import com.mendhak.gpslogger.common.network.Networks;
 import com.mendhak.gpslogger.common.network.ServerType;
 import com.mendhak.gpslogger.common.slf4j.Logs;
 import com.mendhak.gpslogger.senders.PreferenceValidator;
+import com.mendhak.gpslogger.senders.customurl.CustomUrlManager;
 import com.mendhak.gpslogger.ui.Dialogs;
+import de.greenrobot.event.EventBus;
 
 import org.slf4j.Logger;
 
@@ -96,7 +101,43 @@ public class CustomUrlFragment extends PreferenceFragmentCompat implements
             findPreference("log_customurl_basicauth").setSummary(preferenceHelper.getCustomLoggingBasicAuthUsername() + ":" + preferenceHelper.getCustomLoggingBasicAuthPasswordForService().replaceAll(".","*"));
         }
 
+        Preference testPreference = findPreference("custom_url_test");
+        if (testPreference != null) {
+            testPreference.setOnPreferenceClickListener(this);
+        }
 
+        registerEventBus();
+    }
+
+    @Override
+    public void onDestroy() {
+        unregisterEventBus();
+        super.onDestroy();
+    }
+
+    private void registerEventBus() {
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    private void unregisterEventBus() {
+        try {
+            EventBus.getDefault().unregister(this);
+        } catch (Throwable t) {
+            // Safe to ignore
+        }
+    }
+
+    @EventBusHook
+    public void onEventMainThread(UploadEvents.CustomUrl o) {
+        LOG.debug("Custom URL Event completed, success: " + o.success);
+        Dialogs.hideProgress();
+        if (!o.success) {
+            Dialogs.showError(getString(R.string.sorry), getString(R.string.customurl_test_failed), o.message, o.throwable, (FragmentActivity) getActivity());
+        } else {
+            Dialogs.alert(getString(R.string.success), getString(R.string.customurl_test_success), getActivity());
+        }
     }
 
     @Override
@@ -201,6 +242,20 @@ public class CustomUrlFragment extends PreferenceFragmentCompat implements
             } catch (MalformedURLException e) {
                 LOG.error("Could not start certificate validation", e);
             }
+            return true;
+        }
+
+        if(preference.getKey().equals("custom_url_test")){
+            CustomUrlManager manager = new CustomUrlManager(preferenceHelper);
+            if (!manager.isAvailable()) {
+                Dialogs.alert(getString(R.string.autoftp_invalid_settings),
+                        getString(R.string.autoftp_invalid_summary),
+                        getActivity());
+                return false;
+            }
+
+            Dialogs.progress((FragmentActivity) getActivity(), getString(R.string.customurl_testing));
+            manager.testCustomUrlConnection();
             return true;
         }
 
