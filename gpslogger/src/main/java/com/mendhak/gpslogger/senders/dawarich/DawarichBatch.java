@@ -19,7 +19,6 @@
 
 package com.mendhak.gpslogger.senders.dawarich;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
