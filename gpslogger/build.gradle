@@ -48,9 +48,8 @@ android {
         versionCode 139
         versionName "139-rc1"
 
-        // Used by AppAuth-Android
+        // Used by AppIcon
         manifestPlaceholders = [
-                appAuthRedirectScheme: 'com.mendhak.gpslogger',
                 appIcon: "@mipmap/gpsloggericon3"
         ]
     }
