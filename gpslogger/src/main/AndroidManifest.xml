@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- To check if an internet connection exists before communicating  -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- If the user needs to use external GPS receiver eg over bluetooth -->
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"
                      tools:ignore="MockLocation"/>

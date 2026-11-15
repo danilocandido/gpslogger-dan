@@ -19,6 +19,7 @@
 
 package com.mendhak.gpslogger.senders;
 
+import com.mendhak.gpslogger.common.AppSettings;
 import com.mendhak.gpslogger.common.PreferenceHelper;
 import com.mendhak.gpslogger.common.slf4j.Logs;
 import com.mendhak.gpslogger.loggers.Files;
@@ -57,6 +58,11 @@ public class FileSenderFactory {
     public static void autoSendFiles(final String fileToSend) {
 
         PreferenceHelper preferenceHelper = PreferenceHelper.getInstance();
+        if (preferenceHelper.shouldAutoSendOnWifiOnly() && !preferenceHelper.isCurrentWifiAllowed(AppSettings.getInstance())) {
+            LOG.info("Auto send skipped: Current Wi-Fi is not in the allowed SSIDs list (" + preferenceHelper.getAutoSendWifiSSIDs() + ")");
+            return;
+        }
+
         LOG.info("Auto-sending file " + fileToSend);
 
         File gpxFolder = new File(preferenceHelper.getGpsLoggerFolder());

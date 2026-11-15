@@ -48,6 +48,13 @@ import java.security.cert.CertificateException;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Build;
+import com.mendhak.gpslogger.common.Strings;
 
 public class Networks {
 
@@ -153,5 +160,61 @@ public class Networks {
     public static TrustManager getTrustManager(Context context)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, CertStoreException {
         return new LocalX509TrustManager(getKnownServersStore(context));
+    }
+
+    /**
+     * Get the current connected Wi-Fi SSID, stripped of surrounding quotes.
+     * Returns an empty string if not connected to Wi-Fi or unable to determine SSID.
+     */
+    public static String getCurrentWifiSSID(Context context) {
+        if (context == null) {
+            return "";
+        }
+
+        try {
+            ConnectivityManager cm = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    Network activeNetwork = cm.getActiveNetwork();
+                    if (activeNetwork != null) {
+                        NetworkCapabilities capabilities = cm.getNetworkCapabilities(activeNetwork);
+                        if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                            if (capabilities.getTransportInfo() instanceof WifiInfo) {
+                                WifiInfo wifiInfo = (WifiInfo) capabilities.getTransportInfo();
+                                String ssid = cleanSSID(wifiInfo.getSSID());
+                                if (!Strings.isNullOrEmpty(ssid) && !ssid.equalsIgnoreCase("<unknown ssid>")) {
+                                    return ssid;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            WifiManager wm = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if (wm != null) {
+                WifiInfo info = wm.getConnectionInfo();
+                if (info != null) {
+                    String ssid = cleanSSID(info.getSSID());
+                    if (!Strings.isNullOrEmpty(ssid) && !ssid.equalsIgnoreCase("<unknown ssid>")) {
+                        return ssid;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.warn("Could not determine current Wi-Fi SSID: " + e.getMessage());
+        }
+
+        return "";
+    }
+
+    private static String cleanSSID(String ssid) {
+        if (ssid == null) {
+            return "";
+        }
+        if (ssid.startsWith("\"") && ssid.endsWith("\"") && ssid.length() >= 2) {
+            return ssid.substring(1, ssid.length() - 1);
+        }
+        return ssid;
     }
 }

@@ -50,6 +50,10 @@ public class HttpFileUploadWorker extends Worker {
 
         File fileToUpload = new File(filePath);
         PreferenceHelper preferenceHelper = PreferenceHelper.getInstance();
+        if (preferenceHelper.shouldAutoSendOnWifiOnly() && !preferenceHelper.isCurrentWifiAllowed(getApplicationContext())) {
+            LOG.info("HttpFileUploadWorker: Wi-Fi not in allowed list (" + preferenceHelper.getAutoSendWifiSSIDs() + "). Skipping execution and will retry when allowed.");
+            return Result.retry();
+        }
 
         String url = preferenceHelper.getHttpFileUploadUrl();
         String method = preferenceHelper.getHttpFileUploadMethod();

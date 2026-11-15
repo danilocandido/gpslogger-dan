@@ -40,6 +40,13 @@
         android:title="@string/autosend_wifionly_title"
         app:iconSpaceReserved="false" />
 
+    <Preference
+        android:dependency="autosend_wifionly"
+        android:key="autosend_wifi_ssids"
+        android:summary="@string/autosend_wifi_ssids_summary"
+        android:title="@string/autosend_wifi_ssids_title"
+        app:iconSpaceReserved="false" />
+
     <PreferenceCategory
         android:title="@string/autosend_targets_category"
         app:iconSpaceReserved="false">

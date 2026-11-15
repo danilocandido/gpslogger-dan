@@ -145,6 +145,7 @@ public  class PreferenceNames {
     public static final String ALTITUDE_SUBTRACT_OFFSET = "altitude_subtractoffset";
     public static final String ALTITUDE_SHOULD_ADJUST = "altitude_subtractgeoidheight";
     public static final String AUTOSEND_WIFI_ONLY = "autosend_wifionly";
+    public static final String AUTOSEND_WIFI_SSIDS = "autosend_wifi_ssids";
     public static final String CURRENT_PROFILE_NAME = "current_profile_name";
     public static final String SELECTED_NAVITEM = "selected_navitem";
 

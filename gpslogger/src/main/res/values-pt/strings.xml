@@ -315,6 +315,11 @@ Nomes de ficheiro muito dinâmicos
     <string name="inaccurate_point_discarded">Ponto impreciso descartado</string>
     <string name="not_enough_distance_traveled">Percorreu apenas %s m. Ponto descartado.</string>
     <string name="autosend_wifionly_title">Enviar apenas por Wi-Fi</string>
+    <string name="autosend_wifi_ssids_title">Redes Wi-Fi permitidas (SSIDs)</string>
+    <string name="autosend_wifi_ssids_summary">Enviar apenas quando conectado a essas redes Wi-Fi (separadas por vírgula, em branco para qualquer Wi-Fi)</string>
+    <string name="autosend_wifi_ssids_hint">Ex: AInternet, AInternet2</string>
+    <string name="autosend_wifi_ssids_current_wifi">Wi-Fi atual: %1$s</string>
+    <string name="autosend_wifi_ssids_add_current">Usar Wi-Fi atual (%1$s)</string>
     <string name="logview_showlocationsonly">Apenas localizações</string>
     <string name="logview_autoscroll">Deslocar automaticamente</string>
     <string name="profile_create_new">Criar novo perfil</string>

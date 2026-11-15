@@ -49,10 +49,15 @@ public class CustomUrlWorker extends Worker {
             return Result.failure();
         }
 
+        PreferenceHelper preferenceHelper = PreferenceHelper.getInstance();
+        if (preferenceHelper.shouldAutoSendOnWifiOnly() && !preferenceHelper.isCurrentWifiAllowed(getApplicationContext())) {
+            LOG.info("CustomUrlWorker: Wi-Fi not in allowed list (" + preferenceHelper.getAutoSendWifiSSIDs() + "). Skipping execution and will retry when allowed.");
+            return Result.retry();
+        }
+
         boolean success = true;
         String responseError = null;
         String responseThrowableMessage = null;
-        PreferenceHelper preferenceHelper = PreferenceHelper.getInstance();
 
         for (int i = 0; i < urlRequests.length; i++) {
             CustomUrlRequest urlRequest = urlRequests[i];

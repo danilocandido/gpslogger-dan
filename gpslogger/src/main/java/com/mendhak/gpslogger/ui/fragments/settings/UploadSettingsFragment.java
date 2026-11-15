@@ -66,6 +66,12 @@ public class UploadSettingsFragment
         findPreference(PreferenceNames.AUTOSEND_FREQUENCY).setOnPreferenceClickListener(this);
         findPreference(PreferenceNames.AUTOSEND_FREQUENCY).setSummary(preferenceHelper.getAutoSendInterval() + getString(R.string.minutes));
 
+        Preference wifiSSIDsPreference = findPreference(PreferenceNames.AUTOSEND_WIFI_SSIDS);
+        if (wifiSSIDsPreference != null) {
+            wifiSSIDsPreference.setOnPreferenceClickListener(this);
+            updateWifiSSIDsSummary(wifiSSIDsPreference);
+        }
+
         ((SwitchPlusClickPreference)findPreference(PreferenceNames.AUTOSEND_OWNCLOUD_ENABLED))
                 .setSwitchClickListener(new SwitchPlusClickPreference.SwitchPlusClickListener() {
             @Override
@@ -138,9 +144,38 @@ public class UploadSettingsFragment
                                     .inputType(InputType.TYPE_CLASS_NUMBER)
                     )
                     .show(this, PreferenceNames.AUTOSEND_FREQUENCY);
+            return true;
+        }
+
+        if(preference.getKey().equalsIgnoreCase(PreferenceNames.AUTOSEND_WIFI_SSIDS)){
+            String currentSSID = com.mendhak.gpslogger.common.network.Networks.getCurrentWifiSSID(getActivity());
+            String msg = getString(R.string.autosend_wifi_ssids_summary);
+            if (!com.mendhak.gpslogger.common.Strings.isNullOrEmpty(currentSSID)) {
+                msg += "\n\n" + String.format(getString(R.string.autosend_wifi_ssids_current_wifi), currentSSID);
+            }
+
+            SimpleFormDialog.build()
+                    .title(R.string.autosend_wifi_ssids_title)
+                    .msg(msg)
+                    .fields(
+                            Input.plain(PreferenceNames.AUTOSEND_WIFI_SSIDS)
+                                    .hint(R.string.autosend_wifi_ssids_hint)
+                                    .text(preferenceHelper.getAutoSendWifiSSIDs())
+                    )
+                    .show(this, PreferenceNames.AUTOSEND_WIFI_SSIDS);
+            return true;
         }
 
         return false;
+    }
+
+    private void updateWifiSSIDsSummary(Preference preference) {
+        String ssids = preferenceHelper.getAutoSendWifiSSIDs();
+        if (com.mendhak.gpslogger.common.Strings.isNullOrEmpty(ssids)) {
+            preference.setSummary(R.string.autosend_wifi_ssids_summary);
+        } else {
+            preference.setSummary(ssids);
+        }
     }
 
     @Override
@@ -149,6 +184,16 @@ public class UploadSettingsFragment
             String freq = extras.getString(PreferenceNames.AUTOSEND_FREQUENCY);
             preferenceHelper.setAutoSendInterval(freq);
             findPreference(PreferenceNames.AUTOSEND_FREQUENCY).setSummary(freq + getString(R.string.minutes));
+            return true;
+        }
+
+        if(dialogTag.equalsIgnoreCase(PreferenceNames.AUTOSEND_WIFI_SSIDS) && which == BUTTON_POSITIVE){
+            String ssids = extras.getString(PreferenceNames.AUTOSEND_WIFI_SSIDS);
+            preferenceHelper.setAutoSendWifiSSIDs(ssids);
+            Preference pref = findPreference(PreferenceNames.AUTOSEND_WIFI_SSIDS);
+            if (pref != null) {
+                updateWifiSSIDsSummary(pref);
+            }
             return true;
         }
         return false;

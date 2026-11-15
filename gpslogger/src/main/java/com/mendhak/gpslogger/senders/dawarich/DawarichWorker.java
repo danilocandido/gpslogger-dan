@@ -48,6 +48,11 @@ public class DawarichWorker extends Worker {
         }
 
         PreferenceHelper preferenceHelper = PreferenceHelper.getInstance();
+        if (preferenceHelper.shouldAutoSendOnWifiOnly() && !preferenceHelper.isCurrentWifiAllowed(getApplicationContext())) {
+            LOG.info("DawarichWorker: Wi-Fi not in allowed list (" + preferenceHelper.getAutoSendWifiSSIDs() + "). Skipping execution and will retry when allowed.");
+            return Result.retry();
+        }
+
         SerializableFIFOBuffer<SerializableLocation> buffer = SerializableFIFOBuffer.getInstance(bufferPath);
         int batchSize = Math.max(1, preferenceHelper.getDawarichBatchMax());
         OkHttpClient httpClient = createHttpClient();

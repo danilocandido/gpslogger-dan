@@ -446,6 +446,11 @@
     <string name="not_enough_distance_traveled">Only %s m traveled. Point discarded.</string>
     <string name="autosend_wifionly_title">Send on Wi-Fi only</string>
     <string name="autosend_wifionly_summary">Wait for a WiFi connection before performing any network requests. Applies to all requests including sending and logging.</string>
+    <string name="autosend_wifi_ssids_title">Allowed Wi-Fi networks (SSIDs)</string>
+    <string name="autosend_wifi_ssids_summary">Only send when connected to these Wi-Fi networks (comma-separated, leave blank for any Wi-Fi)</string>
+    <string name="autosend_wifi_ssids_hint">e.g. AInternet, AInternet2</string>
+    <string name="autosend_wifi_ssids_current_wifi">Current Wi-Fi: %1$s</string>
+    <string name="autosend_wifi_ssids_add_current">Use current Wi-Fi (%1$s)</string>
     <string name="logview_showlocationsonly">Locations only</string>
     <string name="logview_autoscroll">Auto Scroll</string>
     <string name="profile_create_new">Create new profile</string>

@@ -1352,6 +1352,50 @@ public class PreferenceHelper {
         return prefs.getBoolean(PreferenceNames.AUTOSEND_WIFI_ONLY, false);
     }
 
+    /**
+     * Allowed Wi-Fi network SSIDs for auto send (comma-separated).
+     */
+    @ProfilePreference(name= PreferenceNames.AUTOSEND_WIFI_SSIDS)
+    public String getAutoSendWifiSSIDs() {
+        return prefs.getString(PreferenceNames.AUTOSEND_WIFI_SSIDS, "");
+    }
+
+    public void setAutoSendWifiSSIDs(String ssids) {
+        prefs.edit().putString(PreferenceNames.AUTOSEND_WIFI_SSIDS, ssids != null ? ssids.trim() : "").apply();
+    }
+
+    /**
+     * Checks if current network connection is allowed for auto send.
+     * If Wi-Fi only is disabled, returns true.
+     * If Wi-Fi only is enabled but no SSIDs are specified, returns true (any Wi-Fi).
+     * If SSIDs are specified, verifies that the current connected Wi-Fi matches one of the allowed SSIDs.
+     */
+    public boolean isCurrentWifiAllowed(android.content.Context context) {
+        if (!shouldAutoSendOnWifiOnly()) {
+            return true;
+        }
+
+        String allowedSSIDs = getAutoSendWifiSSIDs();
+        if (Strings.isNullOrEmpty(allowedSSIDs)) {
+            return true;
+        }
+
+        String currentSSID = com.mendhak.gpslogger.common.network.Networks.getCurrentWifiSSID(context);
+        if (Strings.isNullOrEmpty(currentSSID)) {
+            return false;
+        }
+
+        String[] ssids = allowedSSIDs.split(",");
+        for (String ssid : ssids) {
+            String trimmed = ssid.trim();
+            if (trimmed.equalsIgnoreCase(currentSSID)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     @ProfilePreference(name= PreferenceNames.CURRENT_PROFILE_NAME)
     public String getCurrentProfileName() {
