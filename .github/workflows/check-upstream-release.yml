@@ -1,0 +1,87 @@
+name: Check Upstream Releases
+
+on:
+  schedule:
+    # Executa diariamente às 08:00 UTC (05:00 no horário de Brasília)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Permite disparar manualmente pela aba Actions
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for new release on upstream (mendhak/gpslogger)
+        id: check_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          UPSTREAM_REPO="mendhak/gpslogger"
+          
+          # Obter a última release do repositório pai
+          LATEST_RELEASE_JSON=$(gh api repos/$UPSTREAM_REPO/releases/latest 2>/dev/null || echo "")
+          
+          if [ -z "$LATEST_RELEASE_JSON" ]; then
+            echo "Nenhuma release encontrada no upstream ou erro na API."
+            exit 0
+          fi
+          
+          TAG_NAME=$(echo "$LATEST_RELEASE_JSON" | jq -r '.tag_name')
+          RELEASE_NAME=$(echo "$LATEST_RELEASE_JSON" | jq -r '.name')
+          RELEASE_URL=$(echo "$LATEST_RELEASE_JSON" | jq -r '.html_url')
+          RELEASE_BODY=$(echo "$LATEST_RELEASE_JSON" | jq -r '.body')
+          
+          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "release_name=$RELEASE_NAME" >> "$GITHUB_OUTPUT"
+          echo "release_url=$RELEASE_URL" >> "$GITHUB_OUTPUT"
+          
+          # Verificar se já existe uma issue aberta ou fechada sobre essa versão
+          EXISTING_ISSUE=$(gh issue list --repo "${{ github.repository }}" --search "Upstream Release $TAG_NAME" --state all --json number --jq '.[0].number')
+          
+          if [ -n "$EXISTING_ISSUE" ]; then
+            echo "Já existe uma issue (#$EXISTING_ISSUE) para a versão $TAG_NAME. Nada a fazer."
+            echo "should_notify=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_notify=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Issue if new release found
+        if: steps.check_release.outputs.should_notify == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.check_release.outputs.tag_name }}"
+          NAME="${{ steps.check_release.outputs.release_name }}"
+          URL="${{ steps.check_release.outputs.release_url }}"
+          
+          ISSUE_TITLE="🔔 Nova versão no repositório pai: $TAG ($NAME)"
+          ISSUE_BODY=$(cat <<EOF
+          Uma nova versão foi lançada no repositório original (**mendhak/gpslogger**)!
+          
+          - **Versão:** [$TAG]($URL)
+          - **Nome:** $NAME
+          - **Link da Release:** $URL
+          
+          ---
+          
+          ### Como atualizar seu fork com as novidades:
+          Você pode sincronizar os commits do upstream rodando no terminal:
+          \`\`\`bash
+          git remote add upstream https://github.com/mendhak/gpslogger.git
+          git fetch upstream
+          git merge upstream/master
+          \`\`\`
+          *(Lembre-se de revisar conflitos mantendo as suas alterações de Dawarich e remoção dos senders antigos).*
+          EOF
+          )
+          
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "$ISSUE_TITLE" \
+            --body "$ISSUE_BODY"
