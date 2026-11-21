@@ -318,6 +318,22 @@ public class Session {
         return Float.parseFloat(get("autoSendDelay", "0"));
     }
 
+    public void setLastAutoSendTimeStamp(long timestamp) {
+        set("lastAutoSendTimeStamp", String.valueOf(timestamp));
+    }
+
+    public long getLastAutoSendTimeStamp() {
+        return Long.parseLong(get("lastAutoSendTimeStamp", "0"));
+    }
+
+    public void setNextAutoSendTimeStamp(long timestamp) {
+        set("nextAutoSendTimeStamp", String.valueOf(timestamp));
+    }
+
+    public long getNextAutoSendTimeStamp() {
+        return Long.parseLong(get("nextAutoSendTimeStamp", "0"));
+    }
+
     /**
      * @param currentLocationInfo the latest Location class
      */

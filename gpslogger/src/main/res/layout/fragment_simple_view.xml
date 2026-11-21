@@ -376,12 +376,16 @@
 
                     </LinearLayout>
 
-                    <Space
+                    <TextView
+                        android:id="@+id/simpleview_txt_sync_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_row="6"
                         android:layout_column="0"
                         android:layout_columnSpan="3"
-                        android:layout_gravity="fill" />
-
+                        android:paddingTop="8dp"
+                        android:textSize="12sp"
+                        android:textColor="@color/secondaryColorText" />
 
                 </GridLayout>
             </TableRow>

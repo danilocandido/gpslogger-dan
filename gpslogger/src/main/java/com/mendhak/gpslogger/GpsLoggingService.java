@@ -376,7 +376,9 @@ public class GpsLoggingService extends Service  {
             LOG.debug("Setting up autosend timers. Auto Send Enabled - " + String.valueOf(preferenceHelper.isAutoSendEnabled())
                     + ", Auto Send Delay - " + String.valueOf(session.getAutoSendDelay()));
 
-            long triggerTime = SystemClock.elapsedRealtime() + (long) (session.getAutoSendDelay() * 60 * 1000);
+            long delayMs = (long) (session.getAutoSendDelay() * 60 * 1000);
+            long triggerTime = SystemClock.elapsedRealtime() + delayMs;
+            session.setNextAutoSendTimeStamp(System.currentTimeMillis() + delayMs);
 
             alarmIntent = new Intent(this, AlarmReceiver.class);
             cancelAlarm();
@@ -1463,6 +1465,7 @@ public class GpsLoggingService extends Service  {
 
     @EventBusHook
     public void onEvent(CommandEvents.AutoSend autoSend){
+        session.setLastAutoSendTimeStamp(System.currentTimeMillis());
         autoSendLogFile(autoSend.formattedFileName);
 
         EventBus.getDefault().removeStickyEvent(CommandEvents.AutoSend.class);

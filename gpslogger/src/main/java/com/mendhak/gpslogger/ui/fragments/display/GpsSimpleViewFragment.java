@@ -111,7 +111,25 @@ public class GpsSimpleViewFragment extends GenericViewFragment implements View.O
             displayLocationInfo(session.getCurrentLocationInfo());
         }
 
+        updateSyncInfo();
+
         return rootView;
+    }
+
+    private void updateSyncInfo() {
+        if (rootView == null) {
+            return;
+        }
+        TextView txtSyncInfo = (TextView) rootView.findViewById(R.id.simpleview_txt_sync_info);
+        if (txtSyncInfo == null) {
+            return;
+        }
+        java.text.DateFormat df = android.text.format.DateFormat.getTimeFormat(getActivity());
+        long lastSync = session.getLastAutoSendTimeStamp();
+        long nextSync = session.getNextAutoSendTimeStamp();
+        String lastStr = lastSync > 0 ? df.format(new java.util.Date(lastSync)) : "--";
+        String nextStr = (nextSync > 0 && preferenceHelper.isAutoSendEnabled()) ? df.format(new java.util.Date(nextSync)) : "--";
+        txtSyncInfo.setText("Last sync: " + lastStr + "  |  Next sync: " + nextStr);
     }
 
     private void setActionButtonStart(){
