@@ -1177,12 +1177,13 @@ public class GpsLoggingService extends Service  {
         //Don't do anything until the user-defined distance has been traversed
         // However, if user has set an annotation, just log the point, disregard time and distance filters
         // However, if it's a passive location, ignore distance filter.
-        if (!isPassiveLocation && !session.hasDescription() && !session.isSinglePointMode() && preferenceHelper.getMinimumDistanceInterval() > 0 && session.hasValidLocation()) {
+        int effectiveMinimumDistance = getEffectiveMinimumDistance(loc);
+        if (!isPassiveLocation && !session.hasDescription() && !session.isSinglePointMode() && effectiveMinimumDistance > 0 && session.hasValidLocation()) {
 
             double distanceTraveled = Maths.calculateDistance(loc.getLatitude(), loc.getLongitude(),
                     session.getCurrentLatitude(), session.getCurrentLongitude());
 
-            if (preferenceHelper.getMinimumDistanceInterval() > distanceTraveled) {
+            if (effectiveMinimumDistance > distanceTraveled) {
                 LOG.warn(String.format(getString(R.string.not_enough_distance_traveled), String.valueOf(Math.floor(distanceTraveled))) + ", point discarded");
                 stopManagerAndResetAlarm();
                 return;
@@ -1286,6 +1287,34 @@ public class GpsLoggingService extends Service  {
         }
 
         return false;
+    }
+
+    private int getEffectiveMinimumDistance(Location loc) {
+        int configuredDistance = preferenceHelper.getMinimumDistanceInterval();
+        if (configuredDistance <= 30) {
+            return configuredDistance;
+        }
+        boolean isMoving = loc.hasSpeed() && loc.getSpeed() > 1.0f;
+        if (isMoving) {
+            return 30;
+        }
+        String allowedSSIDs = preferenceHelper.getAutoSendWifiSSIDs();
+        if (!Strings.isNullOrEmpty(allowedSSIDs)) {
+            String currentSSID = com.mendhak.gpslogger.common.network.Networks.getCurrentWifiSSID(this);
+            boolean onAllowedWifi = false;
+            if (!Strings.isNullOrEmpty(currentSSID)) {
+                for (String ssid : allowedSSIDs.split(",")) {
+                    if (currentSSID.equalsIgnoreCase(ssid.trim())) {
+                        onAllowedWifi = true;
+                        break;
+                    }
+                }
+            }
+            if (!onAllowedWifi) {
+                return 30;
+            }
+        }
+        return configuredDistance;
     }
 
     private void setDistanceTraveled(Location loc) {
