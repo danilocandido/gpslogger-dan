@@ -362,7 +362,7 @@ public class PreferenceHelper {
      */
     @ProfilePreference(name= PreferenceNames.MINIMUM_DISTANCE)
     public int getMinimumDistanceInterval() {
-        return (Strings.toInt(prefs.getString(PreferenceNames.MINIMUM_DISTANCE, "0"), 0));
+        return (Strings.toInt(prefs.getString(PreferenceNames.MINIMUM_DISTANCE, "100"), 100));
     }
 
     /**
