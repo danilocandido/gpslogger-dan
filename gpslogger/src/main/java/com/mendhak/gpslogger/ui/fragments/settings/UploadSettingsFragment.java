@@ -19,8 +19,14 @@
 
 package com.mendhak.gpslogger.ui.fragments.settings;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.text.InputType;
 import android.view.View;
 import android.widget.Switch;
@@ -57,11 +63,34 @@ public class UploadSettingsFragment
         extends PreferenceFragmentCompat
         implements Preference.OnPreferenceClickListener, SimpleDialog.OnDialogResultListener {
 
+    private static final String PREF_BACKGROUND_STATUS = "autosend_background_status";
+    private static final String DIALOG_BACKGROUND_RESTRICTED = "autosend_background_restricted";
+
     PreferenceHelper preferenceHelper = PreferenceHelper.getInstance();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Preference bgStatusPref = findPreference(PREF_BACKGROUND_STATUS);
+        if (bgStatusPref != null) {
+            bgStatusPref.setOnPreferenceClickListener(this);
+        }
+
+        Preference autoSendEnabledPref = findPreference(PreferenceNames.AUTOSEND_ENABLED);
+        if (autoSendEnabledPref != null) {
+            autoSendEnabledPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (Boolean.TRUE.equals(newValue) && isBackgroundRestricted()) {
+                    SimpleDialog.build()
+                            .title(R.string.autosend_background_restricted_dialog_title)
+                            .msg(R.string.autosend_background_restricted_dialog_msg)
+                            .pos(R.string.open_settings)
+                            .neg(android.R.string.cancel)
+                            .show(this, DIALOG_BACKGROUND_RESTRICTED);
+                }
+                return true;
+            });
+        }
 
         findPreference(PreferenceNames.AUTOSEND_FREQUENCY).setOnPreferenceClickListener(this);
         findPreference(PreferenceNames.AUTOSEND_FREQUENCY).setSummary(preferenceHelper.getAutoSendInterval() + getString(R.string.minutes));
@@ -131,7 +160,57 @@ public class UploadSettingsFragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        updateBackgroundStatusPreference();
+    }
+
+    private boolean isBackgroundRestricted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && getContext() != null) {
+            ActivityManager am = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            return am != null && am.isBackgroundRestricted();
+        }
+        return false;
+    }
+
+    private boolean isIgnoringBatteryOptimizations() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getContext() != null) {
+            PowerManager pm = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+            return pm != null && pm.isIgnoringBatteryOptimizations(getContext().getPackageName());
+        }
+        return true;
+    }
+
+    private void updateBackgroundStatusPreference() {
+        Preference bgStatusPref = findPreference(PREF_BACKGROUND_STATUS);
+        if (bgStatusPref == null) {
+            return;
+        }
+        if (isBackgroundRestricted()) {
+            bgStatusPref.setSummary(R.string.autosend_background_status_restricted);
+        } else if (isIgnoringBatteryOptimizations()) {
+            bgStatusPref.setSummary(R.string.autosend_background_status_unrestricted);
+        } else {
+            bgStatusPref.setSummary(R.string.autosend_background_status_optimized);
+        }
+    }
+
+    private void openAppBatterySettings() {
+        if (getContext() == null) {
+            return;
+        }
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.fromParts("package", getContext().getPackageName(), null));
+        startActivity(intent);
+    }
+
+    @Override
     public boolean onPreferenceClick(Preference preference) {
+
+        if (preference.getKey().equalsIgnoreCase(PREF_BACKGROUND_STATUS)) {
+            openAppBatterySettings();
+            return true;
+        }
 
         if(preference.getKey().equalsIgnoreCase(PreferenceNames.AUTOSEND_FREQUENCY)){
             SimpleFormDialog.build().title(R.string.autosend_frequency)
@@ -194,6 +273,10 @@ public class UploadSettingsFragment
             if (pref != null) {
                 updateWifiSSIDsSummary(pref);
             }
+            return true;
+        }
+        if(dialogTag.equalsIgnoreCase(DIALOG_BACKGROUND_RESTRICTED) && which == BUTTON_POSITIVE){
+            openAppBatterySettings();
             return true;
         }
         return false;

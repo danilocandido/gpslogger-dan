@@ -4,6 +4,11 @@
     android:summary="@string/pref_autosend_summary"
     android:title="@string/pref_autosend_title">
 
+    <Preference
+        android:key="autosend_background_status"
+        android:title="@string/autosend_background_status_title"
+        app:iconSpaceReserved="false" />
+
     <SwitchPreferenceCompat
         android:key="autosend_enabled"
         android:summary="@string/autosend_enabled_summary"
