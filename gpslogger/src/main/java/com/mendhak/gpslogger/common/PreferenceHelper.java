@@ -643,7 +643,7 @@ public class PreferenceHelper {
 
     @ProfilePreference(name=PreferenceNames.LOG_TO_URL_METHOD)
     public String getCustomLoggingHTTPMethod(){
-        return prefs.getString(PreferenceNames.LOG_TO_URL_METHOD, "GET");
+        return prefs.getString(PreferenceNames.LOG_TO_URL_METHOD, "POST");
     }
 
     public void setCustomLoggingHTTPMethod(String method){
@@ -652,7 +652,8 @@ public class PreferenceHelper {
 
     @ProfilePreference(name=PreferenceNames.LOG_TO_URL_BODY)
     public String getCustomLoggingHTTPBody(){
-        return prefs.getString(PreferenceNames.LOG_TO_URL_BODY,"");
+        return prefs.getString(PreferenceNames.LOG_TO_URL_BODY,
+                "{\n  \"_type\": \"location\",\n  \"t\": \"u\",\n  \"acc\": %ACC,\n  \"alt\": %ALT,\n  \"batt\": %BATT,\n  \"lat\": %LAT,\n  \"lon\": %LON,\n  \"tst\": %TIMESTAMP,\n  \"vel\": %SPD_KPH\n}");
     }
 
     public void setCustomLoggingHTTPBody(String body){
@@ -661,7 +662,7 @@ public class PreferenceHelper {
 
     @ProfilePreference(name=PreferenceNames.LOG_TO_URL_HEADERS)
     public String getCustomLoggingHTTPHeaders(){
-        return prefs.getString(PreferenceNames.LOG_TO_URL_HEADERS,"");
+        return prefs.getString(PreferenceNames.LOG_TO_URL_HEADERS, "Content-Type: application/json");
     }
 
     public void setCustomLoggingHTTPHeaders(String headers){

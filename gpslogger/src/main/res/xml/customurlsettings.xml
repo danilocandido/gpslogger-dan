@@ -34,7 +34,7 @@
         app:iconSpaceReserved="false" />
 
     <Preference
-        android:defaultValue=""
+        android:defaultValue="{\n  &quot;_type&quot;: &quot;location&quot;,\n  &quot;t&quot;: &quot;u&quot;,\n  &quot;acc&quot;: %ACC,\n  &quot;alt&quot;: %ALT,\n  &quot;batt&quot;: %BATT,\n  &quot;lat&quot;: %LAT,\n  &quot;lon&quot;: %LON,\n  &quot;tst&quot;: %TIMESTAMP,\n  &quot;vel&quot;: %SPD_KPH\n}"
         android:key="log_customurl_body"
         android:selectAllOnFocus="true"
         android:singleLine="false"
@@ -42,7 +42,7 @@
         app:iconSpaceReserved="false" />
 
     <Preference
-        android:defaultValue=""
+        android:defaultValue="Content-Type: application/json"
         android:hint="Content-Type: application/json\nAuthorization: Basic abcdefg\nApiToken: 12345"
         android:key="log_customurl_headers"
         android:selectAllOnFocus="true"
@@ -51,7 +51,7 @@
         app:iconSpaceReserved="false" />
 
     <Preference
-        android:defaultValue="GET"
+        android:defaultValue="POST"
         android:key="log_customurl_method"
         android:selectAllOnFocus="true"
         android:singleLine="true"
