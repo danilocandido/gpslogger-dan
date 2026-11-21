@@ -380,7 +380,7 @@ public class PreferenceHelper {
      */
     @ProfilePreference(name= PreferenceNames.MINIMUM_ACCURACY)
     public int getMinimumAccuracy() {
-        return (Strings.toInt(prefs.getString(PreferenceNames.MINIMUM_ACCURACY, "40"), 40));
+        return (Strings.toInt(prefs.getString(PreferenceNames.MINIMUM_ACCURACY, "20"), 20));
     }
 
     public void setMinimumAccuracy(int minimumAccuracy){

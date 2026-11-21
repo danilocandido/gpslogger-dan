@@ -79,7 +79,7 @@
         app:iconSpaceReserved="false" />
 
     <Preference
-        android:defaultValue="40"
+        android:defaultValue="20"
         android:dialogTitle="@string/settings_accuracy_in_meters"
         android:hint="@string/settings_enter_meters"
         android:key="accuracy_before_logging"
