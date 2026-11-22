@@ -804,9 +804,7 @@ public class GpsMainActivity extends AppCompatActivity
 
         materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.pref_autosend_title, R.string.pref_autosend_summary, R.drawable.autosend, 1003));
         materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.log_customurl_setup_title, null, R.drawable.customurlsender, 1020));
-        materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.http_file_upload_setup_title, null, R.drawable.customurlsender, 1021));
         materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.log_dawarich_setup_title, null, R.drawable.dawarichsender, 1022));
-        materialDrawer.addItem(GpsLoggerDrawerItem.newPrimary(R.string.owncloud_setup_title, null, R.drawable.owncloud, 1010));
 
         materialDrawer.addItem(new DividerDrawerItem());
 
@@ -1142,14 +1140,8 @@ public class GpsMainActivity extends AppCompatActivity
             case R.id.mnuAutoSendNow:
                 forceAutoSendNow();
                 return true;
-            case R.id.mnuOwnCloud:
-                uploadToOwnCloud();
-                return true;
             case R.id.mnuCustomUrl:
                 uploadToCustomURL();
-                return true;
-            case R.id.mnuHttpFileUpload:
-                uploadToHttpFileUpload();
                 return true;
             default:
                 return true;
