@@ -1325,7 +1325,11 @@ public class GpsLoggingService extends Service  {
             return false;
         }
         String currentSSID = com.mendhak.gpslogger.common.network.Networks.getCurrentWifiSSID(this);
-        if (Strings.isNullOrEmpty(currentSSID)) {
+        return isOnAllowedWifi(allowedSSIDs, currentSSID);
+    }
+
+    public static boolean isOnAllowedWifi(String allowedSSIDs, String currentSSID) {
+        if (Strings.isNullOrEmpty(allowedSSIDs) || Strings.isNullOrEmpty(currentSSID)) {
             return false;
         }
         for (String ssid : allowedSSIDs.split(",")) {
@@ -1337,15 +1341,23 @@ public class GpsLoggingService extends Service  {
     }
 
     private int getEffectiveMinimumDistance(Location loc) {
-        int configuredDistance = preferenceHelper.getMinimumDistanceInterval();
+        return getEffectiveMinimumDistance(
+                preferenceHelper.getMinimumDistanceInterval(),
+                loc.hasSpeed(),
+                loc.getSpeed(),
+                preferenceHelper.getAutoSendWifiSSIDs(),
+                com.mendhak.gpslogger.common.network.Networks.getCurrentWifiSSID(this)
+        );
+    }
+
+    public static int getEffectiveMinimumDistance(int configuredDistance, boolean hasSpeed, float speed, String allowedSSIDs, String currentSSID) {
         if (configuredDistance <= 30) {
             return configuredDistance;
         }
-        boolean isMoving = loc.hasSpeed() && loc.getSpeed() > 1.0f;
-        if (isMoving) {
+        if (hasSpeed && speed > 1.0f) {
             return 30;
         }
-        if (!Strings.isNullOrEmpty(preferenceHelper.getAutoSendWifiSSIDs()) && !isOnAllowedWifi()) {
+        if (!Strings.isNullOrEmpty(allowedSSIDs) && !isOnAllowedWifi(allowedSSIDs, currentSSID)) {
             return 30;
         }
         return configuredDistance;
