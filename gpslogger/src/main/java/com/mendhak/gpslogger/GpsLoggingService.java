@@ -373,6 +373,15 @@ public class GpsLoggingService extends Service  {
     public void setupAutoSendTimers() {
 
         if (preferenceHelper.isAutoSendEnabled() && session.getAutoSendDelay() > 0 && session.isStarted()) {
+            if (!session.hasNewDataForAutoSend()) {
+                LOG.debug("No new data to auto-send, skipping alarm setup.");
+                cancelAlarm();
+                session.setNextAutoSendTimeStamp(0);
+                return;
+            }
+            if (session.getNextAutoSendTimeStamp() > System.currentTimeMillis()) {
+                return;
+            }
             LOG.debug("Setting up autosend timers. Auto Send Enabled - " + String.valueOf(preferenceHelper.isAutoSendEnabled())
                     + ", Auto Send Delay - " + String.valueOf(session.getAutoSendDelay()));
 
@@ -444,6 +453,10 @@ public class GpsLoggingService extends Service  {
         if ( !Strings.isNullOrEmpty(formattedFileName) || !Strings.isNullOrEmpty(Strings.getFormattedFileName()) ) {
             String fileToSend = Strings.isNullOrEmpty(formattedFileName) ? Strings.getFormattedFileName() : formattedFileName;
             FileSenderFactory.autoSendFiles(fileToSend);
+            if (Strings.isNullOrEmpty(formattedFileName)) {
+                session.setHasNewDataForAutoSend(false);
+                session.setNextAutoSendTimeStamp(0);
+            }
             setupAutoSendTimers();
         }
     }
@@ -452,6 +465,7 @@ public class GpsLoggingService extends Service  {
 
         if (session.getAutoSendDelay() != preferenceHelper.getAutoSendInterval()) {
             session.setAutoSendDelay(preferenceHelper.getAutoSendInterval());
+            session.setNextAutoSendTimeStamp(0);
             setupAutoSendTimers();
         }
     }
@@ -1222,6 +1236,8 @@ public class GpsLoggingService extends Service  {
 
         writeToFile(loc);
         session.setLoggedInAllowedWifi(isOnAllowedWifi());
+        session.setHasNewDataForAutoSend(true);
+        setupAutoSendTimers();
         resetAutoSendTimersIfNecessary();
         stopManagerAndResetAlarm();
         setupSignificantMotionSensor();

@@ -342,6 +342,14 @@ public class Session {
         return Boolean.parseBoolean(get("loggedInAllowedWifi", "false"));
     }
 
+    public void setHasNewDataForAutoSend(boolean hasNewData) {
+        set("hasNewDataForAutoSend", String.valueOf(hasNewData));
+    }
+
+    public boolean hasNewDataForAutoSend() {
+        return Boolean.parseBoolean(get("hasNewDataForAutoSend", "false"));
+    }
+
     /**
      * @param currentLocationInfo the latest Location class
      */
