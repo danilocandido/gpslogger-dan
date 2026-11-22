@@ -949,7 +949,7 @@ public class PreferenceHelper {
      */
     @ProfilePreference(name= PreferenceNames.AUTOSEND_ENABLED)
     public boolean isAutoSendEnabled() {
-        return prefs.getBoolean(PreferenceNames.AUTOSEND_ENABLED, false);
+        return prefs.getBoolean(PreferenceNames.AUTOSEND_ENABLED, true);
     }
 
 
