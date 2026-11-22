@@ -334,6 +334,14 @@ public class Session {
         return Long.parseLong(get("nextAutoSendTimeStamp", "0"));
     }
 
+    public void setLoggedInAllowedWifi(boolean logged) {
+        set("loggedInAllowedWifi", String.valueOf(logged));
+    }
+
+    public boolean isLoggedInAllowedWifi() {
+        return Boolean.parseBoolean(get("loggedInAllowedWifi", "false"));
+    }
+
     /**
      * @param currentLocationInfo the latest Location class
      */

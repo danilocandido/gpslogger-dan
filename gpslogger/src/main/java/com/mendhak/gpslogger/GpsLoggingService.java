@@ -588,6 +588,7 @@ public class GpsLoggingService extends Service  {
         session.setStarted(false);
         session.setUserStillSinceTimeStamp(0);
         session.setLatestTimeStamp(0);
+        session.setLoggedInAllowedWifi(false);
         stopAbsoluteTimer();
         // Email log file before setting location info to null
         autoSendLogFileOnStop();
@@ -725,6 +726,16 @@ public class GpsLoggingService extends Service  {
      */
     @SuppressWarnings("ResourceType")
     private void startGpsManager() {
+
+        if (isOnAllowedWifi()) {
+            if (session.isLoggedInAllowedWifi() && !session.hasDescription() && !session.isSinglePointMode()) {
+                LOG.info("Connected to allowed Wi-Fi and already logged here, skipping GPS fix");
+                setAlarmForNextPoint();
+                return;
+            }
+        } else {
+            session.setLoggedInAllowedWifi(false);
+        }
 
         //If the user has been still for more than the minimum seconds
         if(userHasBeenStillForTooLong()) {
@@ -1210,6 +1221,7 @@ public class GpsLoggingService extends Service  {
         }
 
         writeToFile(loc);
+        session.setLoggedInAllowedWifi(isOnAllowedWifi());
         resetAutoSendTimersIfNecessary();
         stopManagerAndResetAlarm();
         setupSignificantMotionSensor();
@@ -1291,6 +1303,23 @@ public class GpsLoggingService extends Service  {
         return false;
     }
 
+    private boolean isOnAllowedWifi() {
+        String allowedSSIDs = preferenceHelper.getAutoSendWifiSSIDs();
+        if (Strings.isNullOrEmpty(allowedSSIDs)) {
+            return false;
+        }
+        String currentSSID = com.mendhak.gpslogger.common.network.Networks.getCurrentWifiSSID(this);
+        if (Strings.isNullOrEmpty(currentSSID)) {
+            return false;
+        }
+        for (String ssid : allowedSSIDs.split(",")) {
+            if (currentSSID.equalsIgnoreCase(ssid.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private int getEffectiveMinimumDistance(Location loc) {
         int configuredDistance = preferenceHelper.getMinimumDistanceInterval();
         if (configuredDistance <= 30) {
@@ -1300,21 +1329,8 @@ public class GpsLoggingService extends Service  {
         if (isMoving) {
             return 30;
         }
-        String allowedSSIDs = preferenceHelper.getAutoSendWifiSSIDs();
-        if (!Strings.isNullOrEmpty(allowedSSIDs)) {
-            String currentSSID = com.mendhak.gpslogger.common.network.Networks.getCurrentWifiSSID(this);
-            boolean onAllowedWifi = false;
-            if (!Strings.isNullOrEmpty(currentSSID)) {
-                for (String ssid : allowedSSIDs.split(",")) {
-                    if (currentSSID.equalsIgnoreCase(ssid.trim())) {
-                        onAllowedWifi = true;
-                        break;
-                    }
-                }
-            }
-            if (!onAllowedWifi) {
-                return 30;
-            }
+        if (!Strings.isNullOrEmpty(preferenceHelper.getAutoSendWifiSSIDs()) && !isOnAllowedWifi()) {
+            return 30;
         }
         return configuredDistance;
     }
