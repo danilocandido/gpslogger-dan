@@ -101,21 +101,6 @@ public class UploadSettingsFragment
             updateWifiSSIDsSummary(wifiSSIDsPreference);
         }
 
-        ((SwitchPlusClickPreference)findPreference(PreferenceNames.AUTOSEND_OWNCLOUD_ENABLED))
-                .setSwitchClickListener(new SwitchPlusClickPreference.SwitchPlusClickListener() {
-            @Override
-            public void onCheckedChanged(SwitchCompat buttonView, boolean isChecked) {
-                // No need to do anything, the value gets propagated.
-            }
-
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), MainPreferenceActivity.class);
-                intent.putExtra("preference_fragment", MainPreferenceActivity.PREFERENCE_FRAGMENTS.OWNCLOUD);
-                startActivity(intent);
-            }
-        });
-
         ((SwitchPlusClickPreference)findPreference(PreferenceNames.AUTOSEND_CUSTOMURL_ENABLED))
                 .setSwitchClickListener(new SwitchPlusClickPreference.SwitchPlusClickListener() {
 
@@ -131,23 +116,6 @@ public class UploadSettingsFragment
 
                         Intent intent = new Intent(getActivity(), MainPreferenceActivity.class);
                         intent.putExtra("preference_fragment", MainPreferenceActivity.PREFERENCE_FRAGMENTS.CUSTOMURL);
-                        startActivity(intent);
-                    }
-                });
-
-        ((SwitchPlusClickPreference)findPreference(PreferenceNames.AUTOSEND_HTTPFILEUPLOAD_ENABLED))
-                .setSwitchClickListener(new SwitchPlusClickPreference.SwitchPlusClickListener() {
-
-                    @Override
-                    public void onCheckedChanged(SwitchCompat buttonView, boolean isChecked) {
-                        // No need to do anything, the value gets propagated.
-                    }
-
-                    @Override
-                    public void onClick(View view) {
-
-                        Intent intent = new Intent(getActivity(), MainPreferenceActivity.class);
-                        intent.putExtra("preference_fragment", MainPreferenceActivity.PREFERENCE_FRAGMENTS.HTTPFILEUPLOAD);
                         startActivity(intent);
                     }
                 });

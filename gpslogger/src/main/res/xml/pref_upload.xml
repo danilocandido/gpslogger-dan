@@ -61,16 +61,6 @@
             android:title="@string/log_customurl_setup_title"
             app:icon="@drawable/customurlsender" />
 
-        <com.mendhak.gpslogger.ui.components.SwitchPlusClickPreference
-            android:key="autohttpfileupload_enabled"
-            android:title="@string/http_file_upload_setup_title"
-            app:icon="@drawable/customurlsender" />
-
-        <com.mendhak.gpslogger.ui.components.SwitchPlusClickPreference
-            android:key="owncloud_enabled"
-            android:title="@string/owncloud_setup_title"
-            app:icon="@drawable/owncloud" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>

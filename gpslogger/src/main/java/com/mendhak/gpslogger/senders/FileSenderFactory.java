@@ -137,9 +137,7 @@ public class FileSenderFactory {
 
     private static List<FileSender> getAllFileSenders(){
         List<FileSender> senders = new ArrayList<>();
-            senders.add(getOwnCloudSender());
             senders.add(getCustomUrlSender());
-            senders.add(getHttpFileUploadSender());
             senders.add(getDawarichSender());
         return senders;
     }
@@ -148,16 +146,8 @@ public class FileSenderFactory {
 
         List<FileSender> senders = new ArrayList<>();
 
-        if(getOwnCloudSender().isAutoSendAvailable()){
-            senders.add(getOwnCloudSender());
-        }
-
         if(getCustomUrlSender().isAutoSendAvailable()){
             senders.add(getCustomUrlSender());
-        }
-
-        if(getHttpFileUploadSender().isAutoSendAvailable()){
-            senders.add(getHttpFileUploadSender());
         }
 
         if(getDawarichSender().isAvailable()){
